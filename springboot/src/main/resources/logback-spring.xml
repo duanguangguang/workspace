@@ -1,65 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <!-- 文件输出格式 -->
-    <property name="PATTERN" value="%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
-    <!-- test文件路径 -->
-    <property name="TEST_FILE_PATH" value="d:/dodd/springboot/test/logs" />
-    <!-- pro文件路径 -->
-    <property name="PRO_FILE_PATH" value="/dodd/springboot/pro/logs" />
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <contextName>logback</contextName>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <!-- 定义项目名称及日志文件的存储地址 注意: 此处需要定义项目名 -->
+    <property name="APP_NAME" value="springboot"/>
+    <!-- 项目日志路径固定为以下路径 -->
+    <property name="LOG_HOME" value="/logs/springboot"/>
 
-    <!-- 开发环境 -->
-    <springProfile name="dev">
-        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder>
-                <pattern>${PATTERN}</pattern>
-            </encoder>
-        </appender>
+    <!--输出到控制台-->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+             <level>ERROR</level>
+         </filter>-->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} [%+5thread] %-5level %+10logger{5} %n--> %msg%n%n</pattern>
+        </encoder>
+    </appender>
 
-        <logger name="springbootdemo.springboot" level="debug"/>
+    <!-- 按照每天生成日志文件 -->
+    <!--<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+            <!--&lt;!&ndash;日志文件输出的文件名 &ndash;&gt;-->
+            <!--<FileNamePattern>${LOG_HOME}/${APP_NAME}/${APP_NAME}.%d{yyyy-MM-dd}.log.zip</FileNamePattern>-->
+            <!--&lt;!&ndash;日志文件保留天数 &ndash;&gt;-->
+            <!--<MaxHistory>1</MaxHistory>-->
+        <!--</rollingPolicy>-->
+        <!--<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
+            <!--<pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} [%+5thread] %-5level %+10logger{5} %n&ndash;&gt; %msg%n%n</pattern>-->
+        <!--</encoder>-->
+    <!--</appender>-->
 
-        <root level="info">
-            <appender-ref ref="CONSOLE" />
-        </root>
-    </springProfile>
+    <!--&lt;!&ndash; 按照每天生成日志文件 &ndash;&gt;-->
+    <!--<appender name="SQL" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+            <!--&lt;!&ndash;日志文件输出的文件名 &ndash;&gt;-->
+            <!--<FileNamePattern>${LOG_HOME}/${APP_NAME}/${APP_NAME}.%d{yyyy-MM-dd}.sql.zip</FileNamePattern>-->
+            <!--&lt;!&ndash;日志文件保留天数 &ndash;&gt;-->
+            <!--<MaxHistory>1</MaxHistory>-->
+        <!--</rollingPolicy>-->
+        <!--<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
+            <!--<pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} [%+5thread] %-5level %+10logger{5} %n&ndash;&gt; %msg%n%n</pattern>-->
+        <!--</encoder>-->
+    <!--</appender>-->
 
-    <!-- 测试环境 -->
-    <springProfile name="test">
-        <!-- 每天产生一个文件 -->
-        <appender name="TEST-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <!-- 文件路径 -->
-            <file>${TEST_FILE_PATH}</file>
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <!-- 文件名称 -->
-                <fileNamePattern>${TEST_FILE_PATH}/info.%d{yyyy-MM-dd}.log</fileNamePattern>
-                <!-- 文件最大保存历史数量 -->
-                <MaxHistory>100</MaxHistory>
-            </rollingPolicy>
+    <!--项目代码打印INFO级别日志  注意: 此处需要自定义包名-->
+    <logger name="springbootdemo.springboot" additivity="false">
+        <level value="INFO"/>
+        <!--<appender-ref ref="FILE"/>-->
+        <!--<appender-ref ref="SQL"/>-->
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+    <logger name="org.springframework.jdbc.core.JdbcTemplate" level="debug"/>
+    <logger name="org.springframework.data.mongodb.core.MongoTemplate" level="debug"/>
 
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>${PATTERN}</pattern>
-            </layout>
-        </appender>
-
-        <root level="info">
-            <appender-ref ref="TEST-FILE" />
-        </root>
-    </springProfile>
-
-    <!-- 生产环境 -->
-    <springProfile name="prod">
-        <appender name="PROD_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>${PRO_FILE_PATH}</file>
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>${PRO_FILE_PATH}/warn.%d{yyyy-MM-dd}.log</fileNamePattern>
-                <MaxHistory>100</MaxHistory>
-            </rollingPolicy>
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>${PATTERN}</pattern>
-            </layout>
-        </appender>
-
-        <root level="warn">
-            <appender-ref ref="PROD_FILE" />
-        </root>
-    </springProfile>
+    <!--其它代码打印WARN级别日志-->
+    <root level="WARN">
+        <!--<appender-ref ref="FILE"/>-->
+        <appender-ref ref="CONSOLE"/>
+    </root>
 </configuration>
